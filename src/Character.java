@@ -1,7 +1,7 @@
-// Character.java
 public class Character {
     private String name;
 
+    // Constructor
     public Character(String name) {
         this.name = name;
     }
@@ -10,4 +10,3 @@ public class Character {
         return name;
     }
 }
-
