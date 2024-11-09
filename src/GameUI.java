@@ -20,12 +20,13 @@ public class GameUI {
     private Stage stage;
     private MediaPlayer backgroundMusicPlayer;
     private MediaPlayer effectPlayer;
+    private Story story; // Story 클래스 참조 추가
 
     public GameUI(Stage stage) {
         this.stage = stage;
+        this.story = new Story(); // Story 인스턴스 초기화
         initializeUI();
     }
-
     private void initializeUI() {
         ImageView mainImageView = new ImageView(ImageLoader.loadImage("main-image.png"));
         mainImageView.setFitWidth(1440);
@@ -49,6 +50,8 @@ public class GameUI {
         Media initialMusic = new Media(getClass().getResource("/sounds/MP_시린 겨울 바람.mp3").toExternalForm());
         backgroundMusicPlayer = new MediaPlayer(initialMusic);
         backgroundMusicPlayer.play();
+
+        backgroundMusicPlayer.setOnEndOfMedia(() -> backgroundMusicPlayer.seek(Duration.ZERO));
     }
 
     private void loadNextPage() {
@@ -149,32 +152,8 @@ public class GameUI {
     }
 
     private void transitionToThirdPage() {
-        // 세 번째 페이지 요소 설정
-        ImageView backgroundImageView = new ImageView(ImageLoader.loadImage("first-image.png"));
-        backgroundImageView.setFitWidth(1440);
-        backgroundImageView.setFitHeight(1024);
-
-        ImageView logoImageView = new ImageView(ImageLoader.loadImage("invite-logo.png"));
-        logoImageView.setFitWidth(302); // 로고 크기 설정
-        logoImageView.setFitHeight(175);
-        logoImageView.setOpacity(0); // 초기에는 투명하게 설정
-
-        StackPane.setAlignment(logoImageView, Pos.TOP_LEFT);
-        logoImageView.setTranslateX(50); // X축 위치 조정
-        logoImageView.setTranslateY(20); // Y축 위치 조정
-
-        // 세 번째 페이지 레이아웃
-        StackPane thirdPage = new StackPane(backgroundImageView, logoImageView);
-        Scene thirdScene = new Scene(thirdPage, 1440, 1024);
-
-        // 세 번째 페이지 페이드 인 효과 설정
-        FadeTransition fadeInThirdPage = new FadeTransition(Duration.seconds(2), logoImageView);
-        fadeInThirdPage.setFromValue(0);
-        fadeInThirdPage.setToValue(1);
-
-        // 세 번째 페이지로 전환 및 페이드 인 실행
-        stage.setScene(thirdScene);
-        fadeInThirdPage.play();
+        // Story 클래스의 메서드를 호출하여 세 번째 페이지와 깜빡이는 효과를 구현합니다.
+        story.displayThirdPageWithBlinkEffect(stage);
     }
 
 }
