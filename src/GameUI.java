@@ -6,14 +6,10 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.text.Font;
-import javafx.scene.control.Label;
-
 
 
 public class GameUI {
@@ -74,7 +70,7 @@ public class GameUI {
         fontBackground2.setFitWidth(344);
         fontBackground2.setFitHeight(207);
 
-        Font customFont = Font.loadFont(getClass().getResourceAsStream("/HS봄바람체2.0.otf"), 30);
+        Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/HS봄바람체2.0.otf"), 30);
 
         Label text1 = new Label("어느 날, 로판에\n빙의된 당신!");
         text1.setFont(customFont);
