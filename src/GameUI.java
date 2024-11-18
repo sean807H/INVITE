@@ -20,9 +20,16 @@ public class GameUI {
 
     public GameUI(Stage stage) {
         this.stage = stage;
-        this.story = new Story(); // Story 인스턴스 초기화
+        this.story = new Story(this); // Story 인스턴스 초기화, GameUI 참조 전달
         initializeUI();
     }
+
+    // 초기 화면으로 돌아가는 메서드를 public으로 추가합니다.
+    public void goToStartPage() {
+        initializeUI();
+    }
+
+
     public void initializeUI() {
         ImageView mainImageView = new ImageView(ImageLoader.loadImage("main-image.png"));
         mainImageView.setFitWidth(1440);
@@ -70,13 +77,13 @@ public class GameUI {
         fontBackground2.setFitWidth(344);
         fontBackground2.setFitHeight(207);
 
-        Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/HeirofLightBold.ttf"), 30);
+        Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/HeirofLightRegular.ttf"), 30);
 
         Label text1 = new Label("어느 날, 로판에\n빙의된 당신!");
         text1.setFont(customFont);
         text1.setStyle("-fx-text-fill: black;");
 
-        Label text2 = new Label("마음에 드는 것을\n선택해 결혼식을\n올리세요.");
+        Label text2 = new Label("마음에 드는 것을\n선택해 당신만의\n결혼식을 올리세요.");
         text2.setFont(customFont);
         text2.setStyle("-fx-text-fill: black;");
 
@@ -148,7 +155,6 @@ public class GameUI {
     }
 
     private void transitionToThirdPage() {
-        // Story 클래스의 메서드를 호출하여 세 번째 페이지와 깜빡이는 효과를 구현합니다.
         story.displayThirdPageWithBlinkEffect(stage);
     }
 
