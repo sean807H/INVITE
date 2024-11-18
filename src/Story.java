@@ -17,6 +17,8 @@ import javafx.scene.image.Image;
 
 public class Story {
     private GameUI gameUI;
+    private StackPane root; // root를 클래스 레벨 변수로 선언
+
     private Label dialogLabel; // 대사 레이블
     private ImageView storyFrame; // 대사 배경 이미지
     private ImageView arrowImageView; // 화살표 이미지
@@ -129,9 +131,10 @@ public class Story {
         StackPane.setAlignment(arrowImageView, Pos.BOTTOM_CENTER);
         StackPane.setMargin(arrowImageView, new Insets(0, 0, 150, 0)); // 아래쪽 150px 마진
 
-        // 모든 요소를 StackPane에 추가
-        StackPane thirdPage = new StackPane(backgroundImageView, blackOverlay, logoImageView, storyLabel, storyFrame, dialogLabel, arrowImageView);
-        Scene thirdScene = new Scene(thirdPage, 1440, 1024);
+        // root 초기화
+        root = new StackPane(backgroundImageView, blackOverlay, logoImageView, storyLabel, storyFrame, dialogLabel, arrowImageView);
+        Scene thirdScene = new Scene(root, 1440, 1024);
+        stage.setScene(thirdScene);
 
         // 애니메이션 설정
         FadeTransition fadeInLogo = new FadeTransition(Duration.seconds(2), logoImageView);
@@ -384,6 +387,8 @@ public class Story {
         addScoreLabelToPane(choice2Pane, "+3");
         addScoreLabelToPane(choice3Pane, "+2");
         addScoreLabelToPane(choice4Pane, "+0");
+
+        addNextArrow(root);
     }
 
     private void applyGrayScale(ImageView imageView) {
@@ -408,5 +413,50 @@ public class Story {
         fadeInScore.setToValue(1);
         fadeInScore.play();
     }
+
+    private void addNextArrow(StackPane root) {
+        // 화살표 이미지 생성
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30); // 화살표 크기 설정
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0);
+
+        // 화살표 위치 및 이벤트 설정
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 150, 0));
+        nextArrow.setOnMouseEntered(event -> nextArrow.setCursor(Cursor.HAND));
+        nextArrow.setOnMouseExited(event -> nextArrow.setCursor(Cursor.DEFAULT));
+        nextArrow.setOnMouseClicked(event -> {
+            // 현재 선택지 UI 제거 및 다음 이야기로 진행
+            root.getChildren().clear(); // 현재 화면의 모든 요소 제거
+            proceedToNextStory(root); // 다음 페이지로 넘어가기
+        });
+
+        // 화살표를 root에 추가
+        root.getChildren().add(nextArrow);
+
+        // 화살표 페이드 인 애니메이션
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+        fadeInArrow.play();
+    }
+
+    private void proceedToNextStory(StackPane root) {
+        // 다음 페이지의 내용을 설정
+        Label nextPageLabel = new Label("다음 이야기가 시작됩니다...");
+        nextPageLabel.setFont(Font.font(customFont.getFamily(), 35));
+        nextPageLabel.setStyle("-fx-text-fill: black;");
+
+        // 루트에 추가
+        root.getChildren().add(nextPageLabel);
+
+        // 페이드 인 애니메이션
+        FadeTransition fadeInNextPage = new FadeTransition(Duration.seconds(1), nextPageLabel);
+        fadeInNextPage.setFromValue(0);
+        fadeInNextPage.setToValue(1);
+        fadeInNextPage.play();
+    }
+
 
 }
