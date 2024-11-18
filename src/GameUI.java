@@ -23,7 +23,7 @@ public class GameUI {
         this.story = new Story(); // Story 인스턴스 초기화
         initializeUI();
     }
-    private void initializeUI() {
+    public void initializeUI() {
         ImageView mainImageView = new ImageView(ImageLoader.loadImage("main-image.png"));
         mainImageView.setFitWidth(1440);
         mainImageView.setFitHeight(1024);
@@ -70,7 +70,7 @@ public class GameUI {
         fontBackground2.setFitWidth(344);
         fontBackground2.setFitHeight(207);
 
-        Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/HS봄바람체2.0.otf"), 30);
+        Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/HeirofLightBold.ttf"), 30);
 
         Label text1 = new Label("어느 날, 로판에\n빙의된 당신!");
         text1.setFont(customFont);

@@ -5,7 +5,8 @@ public class MainForResultPage extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        ResultPage resultPage = new ResultPage(primaryStage);
+        GameUI gameUI = new GameUI(primaryStage); // GameUI 인스턴스 생성
+        ResultPage resultPage = new ResultPage(primaryStage, gameUI); // GameUI 인스턴스를 전달
         resultPage.displayResultPage();
         primaryStage.show();
     }

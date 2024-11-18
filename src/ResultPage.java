@@ -19,9 +19,11 @@ import javafx.scene.web.WebEngine;  // 추가
 public class ResultPage {
 
     private Stage stage;
+    private GameUI gameUI; // GameUI 클래스 참조 추가
 
-    public ResultPage(Stage stage) {
+    public ResultPage(Stage stage, GameUI gameUI) {
         this.stage = stage;
+        this.gameUI = gameUI;
     }
 
     public void displayResultPage() {
@@ -59,7 +61,7 @@ public class ResultPage {
         backToStart.setStyle("-fx-text-fill: white;");
         backToStart.setOnMouseEntered(e -> backToStart.setStyle("-fx-text-fill: blue;"));
         backToStart.setOnMouseExited(e -> backToStart.setStyle("-fx-text-fill: white;"));
-        backToStart.setOnMouseClicked(event -> goToStartPage());
+        backToStart.setOnMouseClicked(event -> gameUI.initializeUI());
 
         // 선택지와의 간격 설정
         HBox optionsBox = new HBox(100, wrapInStackPane(option1), wrapInStackPane(option2));
@@ -89,7 +91,7 @@ public class ResultPage {
     }
 
     private Label createOptionLabel(String text) {
-        Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/HeirofLightBold.ttf"), 30);
+        Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/HeirofLightRegular.ttf"), 30);
 
         Label label = new Label(text);
         label.setFont(customFont);
@@ -291,13 +293,155 @@ public class ResultPage {
         }
     }
 
-    private void goToCharacterIntroPage() {
-        // 인물 소개 페이지로 이동하는 로직 추가
-        System.out.println("인물 소개 페이지로 이동");
-    }
+    private int currentCharacterIndex = 0; // 현재 인물 페이지 인덱스
 
-    private void goToStartPage() {
-        // 처음으로 돌아가는 페이지로 이동하는 로직 추가
-        System.out.println("처음 페이지로 돌아가기");
+    private void goToCharacterIntroPage() {
+        // 인물 소개 페이지에 따른 이미지 배열 설정
+        String[] characterImages = {
+                "/images/카이엘 라나드.png",
+                "/images/에이든 로사르.png",
+                "/images/레온하르트 에셀린.png",
+                "/images/펠릭스 에라모어.png",
+                "/images/세실리아 로젤린.png",
+                "/images/엘로이즈 리벨렌.png",
+                "/images/릴리안 에버린.png",
+                "/images/이벨린 베인.png"
+        };
+
+        // 각 인물 이미지의 너비 설정
+        double[] characterWidths = {
+                900, 723, 703, 725, 662, 723, 649, 1229
+        };
+
+        // 각 인물 이미지의 높이 설정
+        double[] characterHeights = {
+                1024, 1028, 1041, 1018, 1000, 1004, 1020, 1000
+        };
+
+        // 인물 이름 설정
+        String[] characterNames = {
+                "카이엘 라나드",
+                "에이든 로사르",
+                "레온하르트 에셀린",
+                "펠릭스 에라모어",
+                "세실리아 로젤린",
+                "엘로이즈 리벨렌",
+                "릴리안 에버린",
+                "이벨린 베인"
+        };
+
+        // 각 인물 설명 설정
+        String[] characterDescriptions = {
+                "카이엘은 하늘(카이)의 뜻을 담고 있으며, 라나드는 대지의 수호자를 의미합니다. 고귀한 혈통을 상징하며, 하늘과 대지를 아우르는 강인함을 나타내는 캐릭터",
+                "에이든은 용맹한 기사로서, 로사르는 장미를 뜻합니다. 그의 이름은 장미처럼 아름다우면서도 가시에 찔릴 듯한 강렬함을 상징합니다.",
+                "레온하르트는 사자의 마음을 가진 자라는 의미를 가지고 있습니다. 에셀린은 순수한 영혼을 의미하며, 정의감과 용기를 동시에 지닌 인물입니다.",
+                "펠릭스는 행운을 뜻하는 이름으로, 에라모어는 영원한 불꽃을 의미합니다. 항상 긍정적이고 밝은 성격을 지닌 캐릭터입니다.",
+                "세실리아는 하늘의 축복을 받은 자라는 의미를 지니며, 로젤린은 장미꽃처럼 아름답고 매혹적인 인물을 상징합니다.",
+                "엘로이즈는 지혜를 상징하는 이름으로, 리벨렌은 자유로운 영혼을 뜻합니다. 세상에 얽매이지 않는 강한 의지를 가진 캐릭터입니다.",
+                "릴리안은 순수함을 뜻하며, 에버린은 영원히 이어지는 사랑을 의미합니다. 사랑과 우정을 소중히 여기는 따뜻한 인물입니다.",
+                "이벨린은 고귀한 빛을 의미하며, 베인은 어둠을 밝히는 빛을 뜻합니다. 어둠 속에서도 희망을 잃지 않는 용기 있는 캐릭터입니다."
+        };
+
+        // 새로운 인물 소개 페이지 설정 (배경 포함)
+        ImageView backgroundImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/CharacterIntroPage.png")));
+        backgroundImageView.setFitWidth(1440);
+        backgroundImageView.setFitHeight(1024);
+
+        // '이전으로 돌아가기' 텍스트 설정
+        Font customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/HeirofLightRegular.ttf"), 30);
+        Label backToResultPage = new Label("이전으로 돌아가기");
+        backToResultPage.setFont(customFont);
+        backToResultPage.setStyle("-fx-text-fill: white;");
+        backToResultPage.setOnMouseEntered(e -> backToResultPage.setStyle("-fx-text-fill: blue;"));
+        backToResultPage.setOnMouseExited(e -> backToResultPage.setStyle("-fx-text-fill: white;"));
+        backToResultPage.setOnMouseClicked(event -> displayResultPage());
+
+        // '이전으로 돌아가기' 버튼을 왼쪽 상단에 배치
+        StackPane.setAlignment(backToResultPage, Pos.TOP_LEFT);
+        StackPane.setMargin(backToResultPage, new javafx.geometry.Insets(200, 0, 0, 50)); // 위쪽에서 200px, 왼쪽에서 50px 떨어짐
+
+        // 인물 이미지 설정 (현재 인물 인덱스에 따라 이미지를 변경)
+        ImageView characterImage = new ImageView(new Image(getClass().getResourceAsStream(characterImages[currentCharacterIndex])));
+        characterImage.setFitWidth(characterWidths[currentCharacterIndex]);
+        characterImage.setFitHeight(characterHeights[currentCharacterIndex]);
+        StackPane.setAlignment(characterImage, Pos.CENTER);  // 인물 이미지를 중앙에 배치
+
+        // 텍스트 배경 이미지 설정
+        ImageView textBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/textbackground.png")));
+        textBackground.setFitWidth(1002);
+        textBackground.setFitHeight(232);
+        StackPane.setAlignment(textBackground, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(textBackground, new javafx.geometry.Insets(0, 0, 85, 0)); // 아래쪽에서 85px 떨어짐
+
+        // 텍스트 프레임 이미지 설정
+        ImageView textFrame = new ImageView(new Image(getClass().getResourceAsStream("/images/textframe.png")));
+        textFrame.setFitWidth(1164);
+        textFrame.setFitHeight(361);
+        StackPane.setAlignment(textFrame, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(textFrame, new javafx.geometry.Insets(0, 0, 25, 0)); // 아래쪽에서 25px 떨어짐
+
+        // 오른쪽 끝에 폰트 배경 이미지 설정
+        ImageView fontBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/font-background.png")));
+        fontBackground.setFitWidth(344);
+        fontBackground.setFitHeight(207);
+        StackPane.setAlignment(fontBackground, Pos.CENTER_RIGHT);
+        StackPane.setMargin(fontBackground, new javafx.geometry.Insets(0, 70, 500, 0)); // 오른쪽에서 70px 떨어짐
+
+        // 인물 이름 설정 (폰트 배경 위에 위치)
+        Label characterNameLabel = new Label(characterNames[currentCharacterIndex]);
+        characterNameLabel.setFont(Font.font(customFont.getFamily(), 30));
+        characterNameLabel.setTextFill(Color.BLACK);
+        StackPane.setAlignment(characterNameLabel, Pos.CENTER_RIGHT);
+        StackPane.setMargin(characterNameLabel, new javafx.geometry.Insets(0, 140, 500, 0)); // 오른쪽에서 70px 떨어짐
+
+        // 인물 설명 설정 (텍스트 배경 위에 위치)
+        Label characterDescriptionLabel = new Label(characterDescriptions[currentCharacterIndex]);
+        characterDescriptionLabel.setFont(Font.font(customFont.getFamily(), 27));
+        characterDescriptionLabel.setTextFill(Color.BLACK);
+        characterDescriptionLabel.setWrapText(true);
+        characterDescriptionLabel.setMaxWidth(980);  // 텍스트 배경의 너비에 맞춤
+        StackPane.setAlignment(characterDescriptionLabel, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(characterDescriptionLabel, new javafx.geometry.Insets(0, 0, 170, 40)); // 텍스트 배경 바로 위에 위치하도록 설정
+
+        // 왼쪽 화살표 설정
+        ImageView leftArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/left.png")));
+        leftArrow.setFitWidth(30);
+        leftArrow.setFitHeight(45);
+        StackPane.setAlignment(leftArrow, Pos.CENTER_LEFT);
+        StackPane.setMargin(leftArrow, new javafx.geometry.Insets(0, 0, 0, 50)); // 왼쪽에서 50px 떨어짐
+        leftArrow.setOnMouseClicked(eventLeft -> {
+            currentCharacterIndex = (currentCharacterIndex - 1 + characterImages.length) % characterImages.length;
+            goToCharacterIntroPage();
+        });
+
+        // 오른쪽 화살표 설정
+        ImageView rightArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/right.png")));
+        rightArrow.setFitWidth(30);
+        rightArrow.setFitHeight(45);
+        StackPane.setAlignment(rightArrow, Pos.CENTER_RIGHT);
+        StackPane.setMargin(rightArrow, new javafx.geometry.Insets(0, 50, 0, 0)); // 오른쪽에서 50px 떨어짐
+        rightArrow.setOnMouseClicked(eventRight -> {
+            currentCharacterIndex = (currentCharacterIndex + 1) % characterImages.length;
+            goToCharacterIntroPage();
+        });
+
+        // StackPane 레이아웃 설정
+        StackPane characterIntroRoot = new StackPane(
+                backgroundImageView,
+                characterImage,
+                textBackground,
+                textFrame,
+                fontBackground,
+                characterNameLabel,
+                characterDescriptionLabel,
+                backToResultPage,
+                leftArrow,
+                rightArrow
+        );
+        characterIntroRoot.setAlignment(Pos.CENTER);
+
+        // 새로운 장면 설정
+        Scene characterIntroScene = new Scene(characterIntroRoot, 1440, 1024);
+        stage.setScene(characterIntroScene);
     }
 }
