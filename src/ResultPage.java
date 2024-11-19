@@ -17,7 +17,6 @@ import javafx.scene.web.WebEngine;  // 추가
 
 
 public class ResultPage {
-
     private Stage stage;
     private GameUI gameUI; // GameUI 클래스 참조 추가
 
@@ -76,7 +75,7 @@ public class ResultPage {
         StackPane.setAlignment(layout, Pos.CENTER);
 
         Scene scene = new Scene(root, 1440, 1024);
-        stage.setScene(scene);
+        stage.setScene(scene); // Stage에 새로운 Scene 설정
         fadeInBackground.play();
     }
 

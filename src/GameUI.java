@@ -23,6 +23,21 @@ public class GameUI {
         this.story = new Story(this); // Story 인스턴스 초기화, GameUI 참조 전달
         initializeUI();
     }
+    public Stage getStage() {
+        return stage;
+    }
+
+    // 씬 전환을 위한 메서드
+    public void changeScene(Scene newScene) {
+        stage.setScene(newScene);
+        stage.show();
+    }
+
+    // ResultPage로 이동
+    public void goToResultPage() {
+        ResultPage resultPage = new ResultPage(stage, this);
+        resultPage.displayResultPage(); // displayResultPage 호출
+    }
 
     // 초기 화면으로 돌아가는 메서드를 public으로 추가합니다.
     public void goToStartPage() {
@@ -83,7 +98,7 @@ public class GameUI {
         text1.setFont(customFont);
         text1.setStyle("-fx-text-fill: black;");
 
-        Label text2 = new Label("마음에 드는 것을\n선택해 당신만의\n결혼식을 올리세요.");
+        Label text2 = new Label("마음에 드는 것을\n선택하세요.\n(점수를 더해주세요!)");
         text2.setFont(customFont);
         text2.setStyle("-fx-text-fill: black;");
 

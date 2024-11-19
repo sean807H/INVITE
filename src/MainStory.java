@@ -8,7 +8,7 @@ public class MainStory extends Application {
         // GameUI 인스턴스 생성
         GameUI gameUI = new GameUI(primaryStage);
 
-        // Story 인스턴스 생성 및 GameUI 전달
+        // Story 인스턴스 생성
         Story story = new Story(gameUI);
 
         // Story의 세 번째 페이지를 표시
@@ -21,3 +21,4 @@ public class MainStory extends Application {
         launch(args);
     }
 }
+

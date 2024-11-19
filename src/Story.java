@@ -16,8 +16,11 @@ import javafx.util.Duration;
 import javafx.scene.image.Image;
 
 public class Story {
+    private Stage stage;
     private GameUI gameUI;
     private StackPane root; // root를 클래스 레벨 변수로 선언
+
+    private ImageView nextBackground; // 배경 이미지 클래스 레벨 변수로 선언
 
     private Label dialogLabel; // 대사 레이블
     private ImageView storyFrame; // 대사 배경 이미지
@@ -36,10 +39,18 @@ public class Story {
     private StackPane choice4Pane;
 
     private Font customFont; // 클래스 레벨 폰트 변수
-
     public Story(GameUI gameUI) {
         this.gameUI = gameUI;
+        this.stage = gameUI.getStage();
         loadCustomFont();
+        setupBackground();
+    }
+
+    // 배경 이미지 설정
+    private void setupBackground() {
+        nextBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/StoryPage.png")));
+        nextBackground.setFitWidth(1440);
+        nextBackground.setFitHeight(1024);
     }
 
     // 커스텀 폰트 로드 메서드
@@ -61,20 +72,6 @@ public class Story {
         backgroundImageView.setFitWidth(1440);
         backgroundImageView.setFitHeight(1024);
 
-        // 로고 이미지 설정 및 위치 조정
-        ImageView logoImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/invite-logo.png")));
-        logoImageView.setFitWidth(302);
-        logoImageView.setFitHeight(175);
-        logoImageView.setOpacity(0);
-
-        // 로고에 마우스 이벤트 설정
-        logoImageView.setOnMouseEntered(event -> logoImageView.setCursor(Cursor.HAND));
-        logoImageView.setOnMouseExited(event -> logoImageView.setCursor(Cursor.DEFAULT));
-        logoImageView.setOnMouseClicked(event -> gameUI.goToStartPage());
-
-        // 로고 위치 설정
-        StackPane.setAlignment(logoImageView, Pos.TOP_LEFT);
-        StackPane.setMargin(logoImageView, new Insets(20, 0, 0, 20)); // 위쪽 20px, 왼쪽 20px 마진
 
         // 검은색 오버레이 설정
         StackPane blackOverlay = new StackPane();
@@ -105,7 +102,7 @@ public class Story {
         StackPane.setMargin(storyFrame, new Insets(0, 0, 50, 0)); // 아래쪽 50px 마진
 
         // 대사 레이블 설정
-        dialogLabel = new Label("(사용인1) 치장을 하였습니다. 눈을 떠주세요 공주님");
+        dialogLabel = new Label("(사용인1) 치장을 하였습니다. 눈을 떠주십시오. 공주님");
         dialogLabel.setStyle("-fx-text-fill: black;");
         dialogLabel.setFont(Font.font(customFont.getFamily(), 35));
         dialogLabel.setOpacity(0);
@@ -132,14 +129,10 @@ public class Story {
         StackPane.setMargin(arrowImageView, new Insets(0, 0, 150, 0)); // 아래쪽 150px 마진
 
         // root 초기화
-        root = new StackPane(backgroundImageView, blackOverlay, logoImageView, storyLabel, storyFrame, dialogLabel, arrowImageView);
+        root = new StackPane(backgroundImageView, blackOverlay, storyLabel, storyFrame, dialogLabel, arrowImageView);
         Scene thirdScene = new Scene(root, 1440, 1024);
         stage.setScene(thirdScene);
 
-        // 애니메이션 설정
-        FadeTransition fadeInLogo = new FadeTransition(Duration.seconds(2), logoImageView);
-        fadeInLogo.setFromValue(0);
-        fadeInLogo.setToValue(1);
 
         FadeTransition fadeInStoryLabel = new FadeTransition(Duration.seconds(2), storyLabel);
         fadeInStoryLabel.setFromValue(0);
@@ -151,7 +144,6 @@ public class Story {
         blinkEffect.setToValue(0);
 
         blinkEffect.setOnFinished(event -> {
-            fadeInLogo.play();
             fadeInStoryLabel.play();
         });
 
@@ -443,20 +435,1042 @@ public class Story {
     }
 
     private void proceedToNextStory(StackPane root) {
-        // 다음 페이지의 내용을 설정
-        Label nextPageLabel = new Label("다음 이야기가 시작됩니다...");
-        nextPageLabel.setFont(Font.font(customFont.getFamily(), 35));
-        nextPageLabel.setStyle("-fx-text-fill: black;");
+        // root에 배경 이미지 추가
+        root.getChildren().clear();
+        root.getChildren().add(nextBackground);
 
-        // 루트에 추가
-        root.getChildren().add(nextPageLabel);
+        // 대사 프레임 설정
+        storyFrame = new ImageView(new Image(getClass().getResourceAsStream("/images/storyframe.png")));
+        storyFrame.setFitWidth(1352); // 변경된 너비
+        storyFrame.setFitHeight(392); // 변경된 높이
+        storyFrame.setOpacity(0);
+        StackPane.setAlignment(storyFrame, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(storyFrame, new Insets(0, 0, 50, 0)); // 아래쪽 50px 마진
+
+        // 대사 레이블 설정
+        dialogLabel = new Label("(사용인1) 공주님 이제 나가보셔야 합니다. 얼른 골라주십시오.");
+        dialogLabel.setStyle("-fx-text-fill: black;");
+        dialogLabel.setFont(Font.font(customFont.getFamily(), 35));
+        dialogLabel.setOpacity(0);
+
+        // 대사 레이블을 storyFrame 위에 배치
+        StackPane.setAlignment(dialogLabel, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(dialogLabel, new Insets(0, 0, 200, 0)); // 아래쪽 200px 마진
+
+        // 화살표 이미지 설정
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30);
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0); // 초기 숨김
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 150, 0));
+
+        // 화살표 이벤트 추가
+        nextArrow.setOnMouseEntered(event -> nextArrow.setCursor(Cursor.HAND));
+        nextArrow.setOnMouseExited(event -> nextArrow.setCursor(Cursor.DEFAULT));
+        nextArrow.setOnMouseClicked(event -> {
+            // 다음 선택지를 표시
+            displayChoices(root);
+        });
+
+        // root에 새로운 요소 추가
+        root.getChildren().clear();
+        root.getChildren().addAll(nextBackground, storyFrame, dialogLabel, nextArrow);
+
+        // 애니메이션 설정
+        FadeTransition fadeInStoryFrame = new FadeTransition(Duration.seconds(1), storyFrame);
+        fadeInStoryFrame.setFromValue(0);
+        fadeInStoryFrame.setToValue(1);
+
+        FadeTransition fadeInDialog = new FadeTransition(Duration.seconds(1), dialogLabel);
+        fadeInDialog.setFromValue(0);
+        fadeInDialog.setToValue(1);
+
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+
+        // 애니메이션 실행
+        fadeInStoryFrame.play();
+        fadeInDialog.play();
+        fadeInArrow.play();
+    }
+
+    private void displayChoices(StackPane root) {
+        // root 초기화 및 새로운 배경 이미지 추가
+        root.getChildren().clear();
+
+        // 새로운 배경 이미지 설정
+        ImageView newBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/StoryPage.png")));
+        newBackground.setFitWidth(1440);
+        newBackground.setFitHeight(1024);
+
+        // 배경 이미지를 가장 먼저 추가하여 모든 요소들 뒤에 위치하도록 설정
+        root.getChildren().add(newBackground); // 인덱스 0으로 추가하여 가장 뒤에 배치
+
+        // 선택지 레이블 설정 및 스타일 적용
+        Label choiceLabel = new Label("당신이 데뷔탕트에 신고 갈 구두는?");
+        choiceLabel.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-background-color: rgba(0, 0, 0, 0.8);" +  // 검정색 배경
+                        "-fx-background-radius: 10;" +    // 둥근 모서리
+                        "-fx-padding: 10;"                // 텍스트 주변 여백
+        );
+        choiceLabel.setFont(Font.font(customFont.getFamily(), 30));
+        choiceLabel.setOpacity(1);
+
+        // 선택지 이미지 설정
+        choice1ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/redshoes.png")));
+        choice2ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/greenshoes.png")));
+        choice3ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/blueshoes.png")));
+        choice4ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/yellowshoes.png")));
+
+        // 선택지 이미지 크기 조정
+        double choiceHeight = 329;
+        double choiceWidth = 355;
+
+        choice1ImageView.setFitWidth(choiceWidth);
+        choice1ImageView.setFitHeight(choiceHeight);
+        choice2ImageView.setFitWidth(choiceWidth);
+        choice2ImageView.setFitHeight(choiceHeight);
+        choice3ImageView.setFitWidth(choiceWidth);
+        choice3ImageView.setFitHeight(choiceHeight);
+        choice4ImageView.setFitWidth(choiceWidth);
+        choice4ImageView.setFitHeight(choiceHeight);
+
+        // 각 선택지 감싸기
+        choice1Pane = new StackPane(choice1ImageView);
+        choice2Pane = new StackPane(choice2ImageView);
+        choice3Pane = new StackPane(choice3ImageView);
+        choice4Pane = new StackPane(choice4ImageView);
+
+        // 상단 HBox에 두 개의 선택지 배치
+        HBox topChoicesHBox = new HBox(50, choice1Pane, choice2Pane);
+        topChoicesHBox.setAlignment(Pos.CENTER);
+
+        // 하단 HBox에 두 개의 선택지 배치
+        HBox bottomChoicesHBox = new HBox(50, choice3Pane, choice4Pane);
+        bottomChoicesHBox.setAlignment(Pos.CENTER);
+
+        // 선택지 전체를 VBox로 배치
+        VBox choicesBox = new VBox(50, choiceLabel, topChoicesHBox, bottomChoicesHBox);
+        choicesBox.setAlignment(Pos.CENTER);
+
+        // root에 선택지 박스를 추가
+        root.getChildren().add(choicesBox);
 
         // 페이드 인 애니메이션
-        FadeTransition fadeInNextPage = new FadeTransition(Duration.seconds(1), nextPageLabel);
-        fadeInNextPage.setFromValue(0);
-        fadeInNextPage.setToValue(1);
-        fadeInNextPage.play();
+        FadeTransition fadeInChoicesBox = new FadeTransition(Duration.seconds(1), choicesBox);
+        fadeInChoicesBox.setFromValue(0);
+        fadeInChoicesBox.setToValue(1);
+
+        fadeInChoicesBox.setOnFinished(event -> showLoadingGif(root));
+        fadeInChoicesBox.play();
     }
+
+
+    private void showLoadingGif(StackPane root) {
+        ImageView loadingImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/loading.gif")));
+        loadingImageView.setFitWidth(500);
+        loadingImageView.setFitHeight(300);
+        loadingImageView.setOpacity(0);
+
+        // loading.gif를 중앙에 배치하기 위해 StackPane 사용
+        StackPane loadingPane = new StackPane(loadingImageView);
+        loadingPane.setAlignment(Pos.BOTTOM_CENTER); // 하단 중앙 정렬
+//        StackPane.setMargin(loadingPane, new Insets(0, 0, 30, 0)); // 기존 마진 설정
+
+        // Y 축 위치를 추가로 조정하여 더 아래로 이동시키기
+        loadingPane.setTranslateY(100); // 양수를 줄수록 아래로 내려감
+
+
+        // loadingPane을 root에 추가
+        root.getChildren().add(loadingPane);
+
+        // 페이드 인
+        FadeTransition fadeInLoading = new FadeTransition(Duration.seconds(0.5), loadingImageView);
+        fadeInLoading.setFromValue(0);
+        fadeInLoading.setToValue(1);
+
+        fadeInLoading.setOnFinished(event -> {
+            PauseTransition pause = new PauseTransition(Duration.seconds(4.8));
+            pause.setOnFinished(e -> {
+                // loadingPane을 제거해야 합니다.
+                root.getChildren().remove(loadingPane);
+                applyGrayScaleAndShowScores(root);
+            });
+            pause.play();
+        });
+        fadeInLoading.play();
+    }
+
+
+
+    private void applyGrayScaleAndShowScores(StackPane root) {
+        applyGrayScale(choice1ImageView);
+        applyGrayScale(choice2ImageView);
+        applyGrayScale(choice3ImageView);
+        applyGrayScale(choice4ImageView);
+
+        addScoreLabelToPane(choice1Pane, "+1");
+        addScoreLabelToPane(choice2Pane, "+0");
+        addScoreLabelToPane(choice3Pane, "+3");
+        addScoreLabelToPane(choice4Pane, "+2");
+
+        addNavigationArrow(root);
+    }
+
+    private void addNavigationArrow(StackPane root) {
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30);
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0);
+
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 50, 0));
+
+        nextArrow.setOnMouseEntered(event -> nextArrow.setCursor(Cursor.HAND));
+        nextArrow.setOnMouseExited(event -> nextArrow.setCursor(Cursor.DEFAULT));
+        nextArrow.setOnMouseClicked(event -> {
+            root.getChildren().clear();
+            prepareNextScene(root);
+        });
+
+        root.getChildren().add(nextArrow);
+
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+        fadeInArrow.play();
+    }
+
+
+    // 다음 씬을 준비하는 메서드
+    private void prepareNextScene(StackPane root) {
+        // root 초기화 및 새로운 배경 이미지 추가
+        root.getChildren().clear();
+
+        // 새로운 배경 이미지 설정
+        ImageView newBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/SerPage.png")));
+        newBackground.setFitWidth(1440);
+        newBackground.setFitHeight(1024);
+
+        // 스토리 레이블 설정
+        Label storyLabel = new Label("당신의 데뷔탕트 파트너가 에스코트하러 와 있습니다");
+        storyLabel.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-background-color: rgba(0, 0, 0, 0.8);" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 10;"
+        );
+        storyLabel.setFont(Font.font(customFont.getFamily(), 30));
+        storyLabel.setOpacity(0);
+
+        // 대사 프레임 설정
+        storyFrame = new ImageView(new Image(getClass().getResourceAsStream("/images/storyframe.png")));
+        storyFrame.setFitWidth(1352);
+        storyFrame.setFitHeight(392);
+        storyFrame.setOpacity(0);
+        StackPane.setAlignment(storyFrame, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(storyFrame, new Insets(0, 0, 50, 0)); // 아래쪽 50px 마진
+
+        // 대사 레이블 설정
+        Label dialogLabel = new Label("안녕하십니까. 공주님 뵙게되어 영광입니다.");
+        dialogLabel.setStyle("-fx-text-fill: black;");
+        dialogLabel.setFont(Font.font(customFont.getFamily(), 35));
+        dialogLabel.setOpacity(0);
+
+        // 대사 레이블을 storyFrame 위에 배치
+        StackPane.setAlignment(dialogLabel, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(dialogLabel, new Insets(0, 0, 200, 0)); // 아래쪽 200px 마진
+
+        // 화살표 이미지 설정
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30);
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0);
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 150, 0));
+
+        // 이벤트 추가
+        nextArrow.setOnMouseEntered(event -> nextArrow.setCursor(Cursor.HAND));
+        nextArrow.setOnMouseExited(event -> nextArrow.setCursor(Cursor.DEFAULT));
+        nextArrow.setOnMouseClicked(event -> displayChoice(root));
+
+        // 요소 추가 순서 확인
+        root.getChildren().addAll(newBackground, storyLabel, storyFrame, dialogLabel, nextArrow);
+
+        // 스토리 레이블 페이드 인 (1초)
+        FadeTransition fadeInStoryLabel = new FadeTransition(Duration.seconds(1), storyLabel);
+        fadeInStoryLabel.setFromValue(0);
+        fadeInStoryLabel.setToValue(1);
+
+        // 스토리 레이블 유지 시간 (5초)
+        PauseTransition pauseStoryLabel = new PauseTransition(Duration.seconds(3));
+
+        // 스토리 레이블 페이드 아웃 (1초)
+        FadeTransition fadeOutStoryLabel = new FadeTransition(Duration.seconds(1), storyLabel);
+        fadeOutStoryLabel.setFromValue(1);
+        fadeOutStoryLabel.setToValue(0);
+        // 애니메이션 설정 및 실행
+        FadeTransition fadeInStoryFrame = new FadeTransition(Duration.seconds(1), storyFrame);
+        fadeInStoryFrame.setFromValue(0);
+        fadeInStoryFrame.setToValue(1);
+
+        FadeTransition fadeInDialog = new FadeTransition(Duration.seconds(1), dialogLabel);
+        fadeInDialog.setFromValue(0);
+        fadeInDialog.setToValue(1);
+
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+
+        // 애니메이션 순서 제어
+        fadeInStoryLabel.setOnFinished(event -> pauseStoryLabel.play());
+        pauseStoryLabel.setOnFinished(event -> fadeOutStoryLabel.play());
+        fadeOutStoryLabel.setOnFinished(event -> {
+            fadeInStoryFrame.play();
+            fadeInDialog.play();
+            fadeInArrow.play();
+        });
+
+        // 스토리 레이블 애니메이션 실행
+        fadeInStoryLabel.play();
+    }
+
+
+    private void displayChoice(StackPane root) {
+        // root 초기화 및 새로운 배경 이미지 추가
+        root.getChildren().clear();
+
+        // 새로운 배경 이미지 설정
+        ImageView newBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/SerPage.png")));
+        newBackground.setFitWidth(1440);
+        newBackground.setFitHeight(1024);
+
+        // 배경 이미지를 가장 먼저 추가하여 모든 요소들 뒤에 위치하도록 설정
+        root.getChildren().add(newBackground); // 인덱스 0으로 추가하여 가장 뒤에 배치
+
+        // 선택지 레이블 설정 및 스타일 적용
+        Label choiceLabel = new Label("파트너 (그)는 누구인가요?");
+        choiceLabel.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-background-color: rgba(0, 0, 0, 0.8);" +  // 검정색 배경
+                        "-fx-background-radius: 10;" +    // 둥근 모서리
+                        "-fx-padding: 10;"                // 텍스트 주변 여백
+        );
+        choiceLabel.setFont(Font.font(customFont.getFamily(), 30));
+        choiceLabel.setOpacity(1);
+
+        // 선택지 이미지 설정
+        choice1ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/세라핀 카르모어.png")));
+        choice2ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/다리엘 블랙번.png")));
+        choice3ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/아쉬엘 리베르.png")));
+        choice4ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/엘리오르 라브란트.png")));
+
+        // 선택지 이미지 크기 조정
+        double choiceHeight = 485;
+        double choiceWidth1 = 328;
+        double choiceWidth2 = 203;
+        double choiceWidth3 = 361;
+        double choiceWidth4 = 355;
+
+        choice1ImageView.setFitWidth(choiceWidth1);
+        choice1ImageView.setFitHeight(choiceHeight);
+        choice2ImageView.setFitWidth(choiceWidth2);
+        choice2ImageView.setFitHeight(choiceHeight);
+        choice3ImageView.setFitWidth(choiceWidth3);
+        choice3ImageView.setFitHeight(choiceHeight);
+        choice4ImageView.setFitWidth(choiceWidth4);
+        choice4ImageView.setFitHeight(choiceHeight);
+
+        // 각 선택지 감싸기
+        choice1Pane = new StackPane(choice1ImageView);
+        choice2Pane = new StackPane(choice2ImageView);
+        choice3Pane = new StackPane(choice3ImageView);
+        choice4Pane = new StackPane(choice4ImageView);
+
+        // HBox에 네 개의 선택지 배치
+        HBox choicesHBox = new HBox(20, choice1Pane, choice2Pane, choice3Pane, choice4Pane);
+        choicesHBox.setAlignment(Pos.CENTER);
+
+        // VBox로 choiceLabel과 선택지 HBox를 배치
+        VBox layout = new VBox(50, choiceLabel, choicesHBox);
+        layout.setAlignment(Pos.CENTER);
+
+        // 선택지 VBox를 root에 추가
+        root.getChildren().add(layout);
+
+        // 페이드 인 애니메이션
+        FadeTransition fadeInChoicesHBox = new FadeTransition(Duration.seconds(1), choicesHBox);
+        fadeInChoicesHBox.setFromValue(0);
+        fadeInChoicesHBox.setToValue(1);
+
+        fadeInChoicesHBox.setOnFinished(event -> showsLoadingGif(root));
+        fadeInChoicesHBox.play();
+    }
+
+
+    private void showsLoadingGif(StackPane root) {
+        ImageView loadingImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/loading.gif")));
+        loadingImageView.setFitWidth(500);
+        loadingImageView.setFitHeight(300);
+        loadingImageView.setOpacity(0);
+
+        // loading.gif를 중앙에 배치하기 위해 StackPane 사용
+        StackPane loadingPane = new StackPane(loadingImageView);
+        loadingPane.setAlignment(Pos.BOTTOM_CENTER); // 하단 중앙 정렬
+//        StackPane.setMargin(loadingPane, new Insets(0, 0, 30, 0)); // 기존 마진 설정
+
+        // Y 축 위치를 추가로 조정하여 더 아래로 이동시키기
+        loadingPane.setTranslateY(50); // 양수를 줄수록 아래로 내려감
+
+
+        // loadingPane을 root에 추가
+        root.getChildren().add(loadingPane);
+
+        // 페이드 인
+        FadeTransition fadeInLoading = new FadeTransition(Duration.seconds(0.5), loadingImageView);
+        fadeInLoading.setFromValue(0);
+        fadeInLoading.setToValue(1);
+
+        fadeInLoading.setOnFinished(event -> {
+            PauseTransition pause = new PauseTransition(Duration.seconds(4.8));
+            pause.setOnFinished(e -> {
+                // loadingPane을 제거해야 합니다.
+                root.getChildren().remove(loadingPane);
+                applyGrayScaleAndShowScore(root);
+            });
+            pause.play();
+        });
+        fadeInLoading.play();
+    }
+
+    private void applyGrayScaleAndShowScore(StackPane root) {
+        applyGrayScale(choice1ImageView);
+        applyGrayScale(choice2ImageView);
+        applyGrayScale(choice3ImageView);
+        applyGrayScale(choice4ImageView);
+
+        addScoreLabelToPane(choice1Pane, "+2");
+        addScoreLabelToPane(choice2Pane, "+1");
+        addScoreLabelToPane(choice3Pane, "+0");
+        addScoreLabelToPane(choice4Pane, "+3");
+
+        appNavigationArrow(root);
+    }
+
+    private void appNavigationArrow(StackPane root) {
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30);
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0);
+
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 50, 0));
+
+        nextArrow.setOnMouseEntered(event -> nextArrow.setCursor(Cursor.HAND));
+        nextArrow.setOnMouseExited(event -> nextArrow.setCursor(Cursor.DEFAULT));
+        nextArrow.setOnMouseClicked(event -> {
+            root.getChildren().clear();
+            preNextScene(root);
+        });
+
+        root.getChildren().add(nextArrow);
+
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+        fadeInArrow.play();
+    }
+
+    private void preNextScene(StackPane root) {
+        // root 초기화 및 새로운 배경 이미지 추가
+        root.getChildren().clear();
+
+        // 새로운 배경 이미지 설정
+        ImageView newBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/SerPage.png")));
+        newBackground.setFitWidth(1440);
+        newBackground.setFitHeight(1024);
+
+        root.getChildren().add(newBackground); // 인덱스 0으로 추가하여 가장 뒤에 배치
+
+        // 대사 프레임 설정
+        ImageView storyFrame = new ImageView(new Image(getClass().getResourceAsStream("/images/storyframe.png")));
+        storyFrame.setFitWidth(1352);
+        storyFrame.setFitHeight(392);
+        storyFrame.setOpacity(0);
+        StackPane.setAlignment(storyFrame, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(storyFrame, new Insets(0, 0, 50, 0));
+
+        // 첫 번째 대사 레이블 설정
+        Label dialogLabel = new Label("(주인공)저도 영광입니다. 오늘 하루 잘 부탁드려요.");
+        dialogLabel.setStyle("-fx-text-fill: black;");
+        dialogLabel.setFont(Font.font(customFont.getFamily(), 35));
+        dialogLabel.setOpacity(0);
+        StackPane.setAlignment(dialogLabel, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(dialogLabel, new Insets(0, 0, 200, 0));
+
+        // 화살표 이미지 설정
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30);
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0);
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 150, 0));
+
+        // 화살표 클릭 이벤트 - preNextScene2로 이동
+        nextArrow.setOnMouseClicked(event -> preNextScene2(root));
+
+        // root에 요소 추가 (중요!)
+        root.getChildren().addAll(storyFrame, dialogLabel, nextArrow);
+
+        // 애니메이션 설정
+        FadeTransition fadeInStoryFrame = new FadeTransition(Duration.seconds(1), storyFrame);
+        fadeInStoryFrame.setFromValue(0);
+        fadeInStoryFrame.setToValue(1);
+
+        FadeTransition fadeInDialog = new FadeTransition(Duration.seconds(1), dialogLabel);
+        fadeInDialog.setFromValue(0);
+        fadeInDialog.setToValue(1);
+
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+
+        // 애니메이션 순서 제어
+        fadeInStoryFrame.setOnFinished(event -> fadeInDialog.play());
+        fadeInDialog.setOnFinished(event -> fadeInArrow.play());
+
+        // 애니메이션 시작
+        fadeInStoryFrame.play();
+    }
+
+
+    private void preNextScene2(StackPane root) {
+        // root 초기화 및 새로운 배경 이미지 추가
+        root.getChildren().clear();
+
+        // 새로운 배경 이미지 설정
+        ImageView newBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/DancePage.png")));
+        newBackground.setFitWidth(1440);
+        newBackground.setFitHeight(1024);
+
+        // 첫 번째 스토리 레이블 설정 (대사 프레임 없이 표시)
+        Label storyLabel = new Label("파트너와 함께 데뷔탕트에 온 당신. 당신에게 춤을 신청하는 사람이 있습니다");
+        storyLabel.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-background-color: rgba(0, 0, 0, 0.8);" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 10;"
+        );
+        storyLabel.setFont(Font.font(customFont.getFamily(), 30));
+        storyLabel.setOpacity(0);
+        StackPane.setAlignment(storyLabel, Pos.CENTER); // 화면 중앙에 배치
+
+        // 대사 프레임 설정 (dialogLabel과 함께 표시됨)
+        ImageView storyFrame = new ImageView(new Image(getClass().getResourceAsStream("/images/storyframe.png")));
+        storyFrame.setFitWidth(1352);
+        storyFrame.setFitHeight(392);
+        storyFrame.setOpacity(0);
+        StackPane.setAlignment(storyFrame, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(storyFrame, new Insets(0, 0, 50, 0));
+
+        // 두 번째 대사 레이블 설정 (storyFrame과 함께 표시됨)
+        Label dialogLabel = new Label("제게 공주님과 춤 출 수 있는 영광을 주시겠습니까?");
+        dialogLabel.setStyle("-fx-text-fill: black;");
+        dialogLabel.setFont(Font.font(customFont.getFamily(), 35));
+        dialogLabel.setOpacity(0);
+        StackPane.setAlignment(dialogLabel, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(dialogLabel, new Insets(0, 0, 200, 0));
+
+        // 화살표 설정
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30);
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0);
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 150, 0));
+
+        // 화살표 클릭 이벤트 - 선택지 표시
+        nextArrow.setOnMouseClicked(event -> displayChoose(root));
+
+        // 요소 추가 순서 확인
+        root.getChildren().addAll(newBackground, storyLabel, storyFrame, dialogLabel, nextArrow);
+
+        // 첫 번째 스토리 레이블 애니메이션 설정
+        FadeTransition fadeInStoryLabel = new FadeTransition(Duration.seconds(1), storyLabel);
+        fadeInStoryLabel.setFromValue(0);
+        fadeInStoryLabel.setToValue(1);
+
+        PauseTransition pauseStoryLabel = new PauseTransition(Duration.seconds(3));
+
+        FadeTransition fadeOutStoryLabel = new FadeTransition(Duration.seconds(1), storyLabel);
+        fadeOutStoryLabel.setFromValue(1);
+        fadeOutStoryLabel.setToValue(0);
+
+        // 두 번째 대사와 대사 프레임 애니메이션 설정
+        FadeTransition fadeInStoryFrame = new FadeTransition(Duration.seconds(1), storyFrame);
+        fadeInStoryFrame.setFromValue(0);
+        fadeInStoryFrame.setToValue(1);
+
+        FadeTransition fadeInDialog = new FadeTransition(Duration.seconds(1), dialogLabel);
+        fadeInDialog.setFromValue(0);
+        fadeInDialog.setToValue(1);
+
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+
+        // 애니메이션 순서 제어
+        fadeInStoryLabel.setOnFinished(event -> pauseStoryLabel.play());
+        pauseStoryLabel.setOnFinished(event -> fadeOutStoryLabel.play());
+        fadeOutStoryLabel.setOnFinished(event -> {
+            fadeInStoryFrame.play();
+            fadeInDialog.play();
+            fadeInArrow.play();
+        });
+
+        // 첫 번째 스토리 레이블 애니메이션 시작
+        fadeInStoryLabel.play();
+    }
+
+    private void displayChoose(StackPane root) {
+        // root 초기화 및 새로운 배경 이미지 추가
+        root.getChildren().clear();
+
+        // 새로운 배경 이미지 설정
+        ImageView newBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/DancePage.png")));
+        newBackground.setFitWidth(1440);
+        newBackground.setFitHeight(1024);
+
+        // 배경 이미지를 가장 먼저 추가하여 모든 요소들 뒤에 위치하도록 설정
+        root.getChildren().add(newBackground); // 인덱스 0으로 추가하여 가장 뒤에 배치
+
+        // 선택지 레이블 설정 및 스타일 적용
+        Label choiceLabel = new Label("당신과 처음으로 춤을 추는 사람은 누구?");
+        choiceLabel.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-background-color: rgba(0, 0, 0, 0.8);" +  // 검정색 배경
+                        "-fx-background-radius: 10;" +    // 둥근 모서리
+                        "-fx-padding: 10;"                // 텍스트 주변 여백
+        );
+        choiceLabel.setFont(Font.font(customFont.getFamily(), 30));
+        choiceLabel.setOpacity(1);
+
+        // 선택지 이미지 설정
+        choice1ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/카이엘 라나드.png")));
+        choice2ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/에이든 로사르.png")));
+        choice3ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/레온하르트 에셀린.png")));
+        choice4ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/펠릭스 에라모어.png")));
+
+        // 선택지 이미지 크기 조정
+        double choiceHeight1 = 434;
+        double choiceWidth1 = 389;
+        double choiceHeight2 = 467;
+        double choiceWidth2 = 329;
+        double choiceHeight3 = 456;
+        double choiceWidth3 = 309;
+        double choiceHeight4 = 434;
+        double choiceWidth4 = 309;
+
+        choice1ImageView.setFitWidth(choiceWidth1);
+        choice1ImageView.setFitHeight(choiceHeight1);
+        choice1ImageView.setPreserveRatio(true);
+
+        choice2ImageView.setFitWidth(choiceWidth2);
+        choice2ImageView.setFitHeight(choiceHeight2);
+        choice2ImageView.setPreserveRatio(true);
+
+        choice3ImageView.setFitWidth(choiceWidth3);
+        choice3ImageView.setFitHeight(choiceHeight3);
+        choice3ImageView.setPreserveRatio(true);
+
+        choice4ImageView.setFitWidth(choiceWidth4);
+        choice4ImageView.setFitHeight(choiceHeight4);
+        choice4ImageView.setPreserveRatio(true);
+
+        // 각 선택지 감싸기
+        choice1Pane = new StackPane(choice1ImageView);
+        choice2Pane = new StackPane(choice2ImageView);
+        choice3Pane = new StackPane(choice3ImageView);
+        choice4Pane = new StackPane(choice4ImageView);
+
+        // HBox에 네 개의 선택지 배치
+        HBox choicesHBox = new HBox(20, choice1Pane, choice2Pane, choice3Pane, choice4Pane);
+        choicesHBox.setAlignment(Pos.CENTER);
+
+        // VBox로 choiceLabel과 선택지 HBox를 배치
+        VBox layout = new VBox(50, choiceLabel, choicesHBox);
+        layout.setAlignment(Pos.CENTER);
+
+        // 선택지 VBox를 root에 추가
+        root.getChildren().add(layout);
+
+        // 페이드 인 애니메이션
+        FadeTransition fadeInChoicesHBox = new FadeTransition(Duration.seconds(1), choicesHBox);
+        fadeInChoicesHBox.setFromValue(0);
+        fadeInChoicesHBox.setToValue(1);
+
+        fadeInChoicesHBox.setOnFinished(event -> showsloadingGif(root));
+        fadeInChoicesHBox.play();
+
+    }
+
+    private void showsloadingGif(StackPane root) {
+        ImageView loadingImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/loading.gif")));
+        loadingImageView.setFitWidth(500);
+        loadingImageView.setFitHeight(300);
+        loadingImageView.setOpacity(0);
+
+        // loading.gif를 중앙에 배치하기 위해 StackPane 사용
+        StackPane loadingPane = new StackPane(loadingImageView);
+        loadingPane.setAlignment(Pos.BOTTOM_CENTER); // 하단 중앙 정렬
+//        StackPane.setMargin(loadingPane, new Insets(0, 0, 30, 0)); // 기존 마진 설정
+
+        // Y 축 위치를 추가로 조정하여 더 아래로 이동시키기
+        loadingPane.setTranslateY(50); // 양수를 줄수록 아래로 내려감
+
+
+        // loadingPane을 root에 추가
+        root.getChildren().add(loadingPane);
+
+        // 페이드 인
+        FadeTransition fadeInLoading = new FadeTransition(Duration.seconds(0.5), loadingImageView);
+        fadeInLoading.setFromValue(0);
+        fadeInLoading.setToValue(1);
+
+        fadeInLoading.setOnFinished(event -> {
+            PauseTransition pause = new PauseTransition(Duration.seconds(4.8));
+            pause.setOnFinished(e -> {
+                // loadingPane을 제거해야 합니다.
+                root.getChildren().remove(loadingPane);
+                applyGrayScaleAndShowscore(root);
+            });
+            pause.play();
+        });
+        fadeInLoading.play();
+    }
+
+    private void applyGrayScaleAndShowscore(StackPane root) {
+        applyGrayScale(choice1ImageView);
+        applyGrayScale(choice2ImageView);
+        applyGrayScale(choice3ImageView);
+        applyGrayScale(choice4ImageView);
+
+        addScoreLabelToPane(choice1Pane, "+4");
+        addScoreLabelToPane(choice2Pane, "+2");
+        addScoreLabelToPane(choice3Pane, "+1");
+        addScoreLabelToPane(choice4Pane, "+3");
+
+        appNavigationarrow(root);
+    }
+
+    private void appNavigationarrow(StackPane root) {
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30);
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0);
+
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 50, 0));
+
+        nextArrow.setOnMouseEntered(event -> nextArrow.setCursor(Cursor.HAND));
+        nextArrow.setOnMouseExited(event -> nextArrow.setCursor(Cursor.DEFAULT));
+        nextArrow.setOnMouseClicked(event -> {
+            root.getChildren().clear();
+            prenextScene(root);
+        });
+
+        root.getChildren().add(nextArrow);
+
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+        fadeInArrow.play();
+    }
+
+    private void prenextScene(StackPane root) {
+        // root 초기화 및 새로운 배경 이미지 추가
+        root.getChildren().clear();
+
+        // 새로운 배경 이미지 설정
+        ImageView newBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/endPage.png")));
+        newBackground.setFitWidth(1440);
+        newBackground.setFitHeight(1024);
+
+        // 첫 번째 스토리 레이블 설정 (대사 프레임 없이 표시)
+        Label storyLabel = new Label("춤을 춘 남주와 함께 바람쐐러 정원으로 나온 당신");
+        storyLabel.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-background-color: rgba(0, 0, 0, 0.8);" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 10;"
+        );
+        storyLabel.setFont(Font.font(customFont.getFamily(), 30));
+        storyLabel.setOpacity(0);
+        StackPane.setAlignment(storyLabel, Pos.CENTER); // 화면 중앙에 배치
+
+        // 두 번째 스토리 레이블 설정 (대사 프레임 없이 표시)
+        Label storyLabel2 = new Label("남주가 당신에게 무언가를 건넵니다");
+        storyLabel2.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-background-color: rgba(0, 0, 0, 0.8);" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 10;"
+        );
+        storyLabel2.setFont(Font.font(customFont.getFamily(), 30));
+        storyLabel2.setOpacity(0);
+        StackPane.setAlignment(storyLabel2, Pos.CENTER); // 화면 중앙에 배치
+
+        // 대사 프레임 설정 (dialogLabel과 함께 표시됨)
+        ImageView storyFrame = new ImageView(new Image(getClass().getResourceAsStream("/images/storyframe.png")));
+        storyFrame.setFitWidth(1352);
+        storyFrame.setFitHeight(392);
+        storyFrame.setOpacity(0);
+        StackPane.setAlignment(storyFrame, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(storyFrame, new Insets(0, 0, 50, 0));
+
+        // 두 번째 대사 레이블 설정 (storyFrame과 함께 표시됨)
+        Label dialogLabel = new Label("공주님께 드리는 제 마음입니다.");
+        dialogLabel.setStyle("-fx-text-fill: black;");
+        dialogLabel.setFont(Font.font(customFont.getFamily(), 35));
+        dialogLabel.setOpacity(0);
+        StackPane.setAlignment(dialogLabel, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(dialogLabel, new Insets(0, 0, 200, 0));
+
+        // 화살표 설정
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30);
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0);
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 150, 0));
+
+        // 화살표 클릭 이벤트 - 선택지 표시
+        nextArrow.setOnMouseClicked(event -> displayChooses(root));
+
+        // 요소 추가 순서 확인
+        root.getChildren().addAll(newBackground, storyLabel, storyLabel2, storyFrame, dialogLabel, nextArrow);
+
+        // 첫 번째 스토리 레이블 애니메이션 설정
+        FadeTransition fadeInStoryLabel = new FadeTransition(Duration.seconds(1), storyLabel);
+        fadeInStoryLabel.setFromValue(0);
+        fadeInStoryLabel.setToValue(1);
+
+        PauseTransition pauseStoryLabel = new PauseTransition(Duration.seconds(3));
+
+        FadeTransition fadeOutStoryLabel = new FadeTransition(Duration.seconds(1), storyLabel);
+        fadeOutStoryLabel.setFromValue(1);
+        fadeOutStoryLabel.setToValue(0);
+
+        // 두 번째 스토리 레이블 애니메이션 설정
+        FadeTransition fadeInStoryLabel2 = new FadeTransition(Duration.seconds(1), storyLabel2);
+        fadeInStoryLabel2.setFromValue(0);
+        fadeInStoryLabel2.setToValue(1);
+
+        PauseTransition pauseStoryLabel2 = new PauseTransition(Duration.seconds(3));
+
+        FadeTransition fadeOutStoryLabel2 = new FadeTransition(Duration.seconds(1), storyLabel2);
+        fadeOutStoryLabel2.setFromValue(1);
+        fadeOutStoryLabel2.setToValue(0);
+
+        // 두 번째 대사와 대사 프레임 애니메이션 설정
+        FadeTransition fadeInStoryFrame = new FadeTransition(Duration.seconds(1), storyFrame);
+        fadeInStoryFrame.setFromValue(0);
+        fadeInStoryFrame.setToValue(1);
+
+        FadeTransition fadeInDialog = new FadeTransition(Duration.seconds(1), dialogLabel);
+        fadeInDialog.setFromValue(0);
+        fadeInDialog.setToValue(1);
+
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+
+        // 애니메이션 순서 제어
+        fadeInStoryLabel.setOnFinished(event -> {
+            pauseStoryLabel.play();
+        });
+        pauseStoryLabel.setOnFinished(event -> {
+            fadeOutStoryLabel.play();
+        });
+        fadeOutStoryLabel.setOnFinished(event -> {
+            fadeInStoryLabel2.play();
+        });
+        fadeInStoryLabel2.setOnFinished(event -> {
+            pauseStoryLabel2.play();
+        });
+        pauseStoryLabel2.setOnFinished(event -> {
+            fadeOutStoryLabel2.play();
+        });
+        fadeOutStoryLabel2.setOnFinished(event -> {
+            fadeInStoryFrame.play();
+            fadeInDialog.play();
+            fadeInArrow.play();
+        });
+
+        // 첫 번째 스토리 레이블 애니메이션 시작
+        fadeInStoryLabel.play();
+    }
+
+    private void displayChooses(StackPane root) {
+        // root 초기화 및 새로운 배경 이미지 추가
+        root.getChildren().clear();
+
+        // 새로운 배경 이미지 설정
+        ImageView newBackground = new ImageView(new Image(getClass().getResourceAsStream("/images/endPage.png")));
+        newBackground.setFitWidth(1440);
+        newBackground.setFitHeight(1024);
+
+        // 배경 이미지를 가장 먼저 추가하여 모든 요소들 뒤에 위치하도록 설정
+        root.getChildren().add(newBackground); // 인덱스 0으로 추가하여 가장 뒤에 배치
+
+        // 선택지 레이블 설정 및 스타일 적용
+        Label choiceLabel = new Label("남주에게 선물로 받고싶은 꽃을 선택하세요");
+        choiceLabel.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-background-color: rgba(0, 0, 0, 0.8);" +  // 검정색 배경
+                        "-fx-background-radius: 10;" +    // 둥근 모서리
+                        "-fx-padding: 10;"                // 텍스트 주변 여백
+        );
+        choiceLabel.setFont(Font.font(customFont.getFamily(), 30));
+        choiceLabel.setOpacity(1);
+
+        // 선택지 이미지 설정
+        choice1ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/flower1.png")));
+        choice2ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/flower2.png")));
+        choice3ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/flower3.png")));
+        choice4ImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/flower4.png")));
+
+        // 선택지 이미지 크기 조정
+        double choiceHeight1 = 335;
+        double choiceWidth1 = 322;
+        double choiceHeight2 = 328;
+        double choiceWidth2 = 295;
+        double choiceHeight3 = 320;
+        double choiceWidth3 = 346;
+        double choiceHeight4 = 337;
+        double choiceWidth4 = 327;
+
+        choice1ImageView.setFitWidth(choiceWidth1);
+        choice1ImageView.setFitHeight(choiceHeight1);
+        choice1ImageView.setPreserveRatio(true);
+
+        choice2ImageView.setFitWidth(choiceWidth2);
+        choice2ImageView.setFitHeight(choiceHeight2);
+        choice2ImageView.setPreserveRatio(true);
+
+        choice3ImageView.setFitWidth(choiceWidth3);
+        choice3ImageView.setFitHeight(choiceHeight3);
+        choice3ImageView.setPreserveRatio(true);
+
+        choice4ImageView.setFitWidth(choiceWidth4);
+        choice4ImageView.setFitHeight(choiceHeight4);
+        choice4ImageView.setPreserveRatio(true);
+
+        // 각 선택지 감싸기
+        choice1Pane = new StackPane(choice1ImageView);
+        choice2Pane = new StackPane(choice2ImageView);
+        choice3Pane = new StackPane(choice3ImageView);
+        choice4Pane = new StackPane(choice4ImageView);
+
+        // 상단 HBox에 두 개의 선택지 배치
+        HBox topChoicesHBox = new HBox(50, choice1Pane, choice2Pane);
+        topChoicesHBox.setAlignment(Pos.CENTER);
+
+        // 하단 HBox에 두 개의 선택지 배치
+        HBox bottomChoicesHBox = new HBox(50, choice3Pane, choice4Pane);
+        bottomChoicesHBox.setAlignment(Pos.CENTER);
+
+        // 선택지 전체를 VBox로 배치
+        VBox choicesBox = new VBox(50, choiceLabel, topChoicesHBox, bottomChoicesHBox);
+        choicesBox.setAlignment(Pos.CENTER);
+
+        // root에 선택지 박스를 추가
+        root.getChildren().add(choicesBox);
+
+        // 페이드 인 애니메이션
+        FadeTransition fadeInChoicesBox = new FadeTransition(Duration.seconds(1), choicesBox);
+        fadeInChoicesBox.setFromValue(0);
+        fadeInChoicesBox.setToValue(1);
+
+        fadeInChoicesBox.setOnFinished(event -> showloadingGif(root));
+        fadeInChoicesBox.play();
+
+    }
+
+    private void showloadingGif(StackPane root) {
+        ImageView loadingImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/loading.gif")));
+        loadingImageView.setFitWidth(500);
+        loadingImageView.setFitHeight(300);
+        loadingImageView.setOpacity(0);
+
+        // loading.gif를 중앙에 배치하기 위해 StackPane 사용
+        StackPane loadingPane = new StackPane(loadingImageView);
+        loadingPane.setAlignment(Pos.BOTTOM_CENTER); // 하단 중앙 정렬
+//        StackPane.setMargin(loadingPane, new Insets(0, 0, 30, 0)); // 기존 마진 설정
+
+        // Y 축 위치를 추가로 조정하여 더 아래로 이동시키기
+        loadingPane.setTranslateY(100); // 양수를 줄수록 아래로 내려감
+
+
+        // loadingPane을 root에 추가
+        root.getChildren().add(loadingPane);
+
+        // 페이드 인
+        FadeTransition fadeInLoading = new FadeTransition(Duration.seconds(0.5), loadingImageView);
+        fadeInLoading.setFromValue(0);
+        fadeInLoading.setToValue(1);
+
+        fadeInLoading.setOnFinished(event -> {
+            PauseTransition pause = new PauseTransition(Duration.seconds(4.8));
+            pause.setOnFinished(e -> {
+                // loadingPane을 제거해야 합니다.
+                root.getChildren().remove(loadingPane);
+                applyGrayScaleAndshowscore(root);
+            });
+            pause.play();
+        });
+        fadeInLoading.play();
+    }
+
+    private void applyGrayScaleAndshowscore(StackPane root) {
+        applyGrayScale(choice1ImageView);
+        applyGrayScale(choice2ImageView);
+        applyGrayScale(choice3ImageView);
+        applyGrayScale(choice4ImageView);
+
+        addScoreLabelToPane(choice1Pane, "+2");
+        addScoreLabelToPane(choice2Pane, "+0");
+        addScoreLabelToPane(choice3Pane, "+3");
+        addScoreLabelToPane(choice4Pane, "+1");
+
+        appnavigationarrow(root); // root만 전달
+    }
+
+    private void appnavigationarrow(StackPane root) {
+        ImageView nextArrow = new ImageView(new Image(getClass().getResourceAsStream("/images/Vector.png")));
+        nextArrow.setFitWidth(30);
+        nextArrow.setFitHeight(25);
+        nextArrow.setOpacity(0);
+
+        StackPane.setAlignment(nextArrow, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(nextArrow, new Insets(0, 0, 50, 0));
+
+        nextArrow.setOnMouseClicked(event -> {
+            gameUI.goToResultPage(); // GameUI를 통해 ResultPage로 이동
+            event.consume();
+        });
+
+        root.getChildren().add(nextArrow);
+
+        FadeTransition fadeInArrow = new FadeTransition(Duration.seconds(1), nextArrow);
+        fadeInArrow.setFromValue(0);
+        fadeInArrow.setToValue(1);
+        fadeInArrow.play();
+    }
+
 
 
 }
