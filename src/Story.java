@@ -53,7 +53,7 @@ public class Story {
         nextBackground.setFitHeight(1024);
     }
 
-    // 커스텀 폰트 로드 메서드
+    // 사용자 정의 폰트를 로드
     private void loadCustomFont() {
         try {
             customFont = Font.loadFont(getClass().getResourceAsStream("/fonts/HeirofLightRegular.ttf"), 30);
